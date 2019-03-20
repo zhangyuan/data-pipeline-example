@@ -1,0 +1,58 @@
+version: '3'
+services:
+  hadoop:
+    image: zhangyuan/hadoop
+    hostname: hadoop
+    volumes:
+    - ./data/hadoop/:/dfs/
+    - ./conf/hadoop/core-site.xml:/hadoop/etc/hadoop/core-site.xml
+    - ./conf/hadoop/hdfs-site.xml:/hadoop/etc/hadoop/hdfs-site.xml
+    - ./shared/hadoop:/shared/
+    ports:
+    - "9000:9000"
+    - "8020:8020"
+    - "50010:50010"
+    - "50020:50020"
+    - "50070:50070"
+    - "50075:50075"
+    - "50090:50090"
+    networks:
+    - data-pipeline
+  kafka:
+    hostname: kafka
+    image: zhangyuan/kafka
+    volumes:
+    - ./data/zookeeper:/tmp/zookeeper
+    - ./data/kafka:/tmp/kafka-logs
+    - ./conf/kafka/server.properties:/kafka/config/server.properties
+    - ./conf/kafka/zookeeper.properties:/kafka/config/zookeeper.properties
+    - ./conf/kafka/docker-entrypoint.sh:/kafka/docker-entrypoint.sh
+    networks:
+    - data-pipeline
+    ports:
+    - "9092:9092"
+  zookeeper:
+    image: zookeeper:3.4
+    volumes:
+    - ./data/zookeeper/data:/data
+    - ./data/zookeeper/datalog:/datalog
+    networks:
+    - data-pipeline
+    ports:
+    - "2181:2181"
+  database:
+    hostname: database
+    image: postgres:11.2-alpine
+    environment:
+    - POSTGRES_PASSWORD=postgres
+    - POSTGRES_USER=postgres
+    - POSTGRES_DB=postgres
+    networks:
+    - data-pipeline
+    ports:
+    - "5432:5432"
+    volumes:
+    - ./data/postgres/:/var/lib/postgresql/data
+    - ./conf/postgres/initdb.d/:/docker-entrypoint-initdb.d
+networks:
+  data-pipeline:

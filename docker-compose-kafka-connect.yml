@@ -1,0 +1,26 @@
+version: '3'
+services:
+  kafka-connect-source:
+    build:
+      context: kafka-connect-jdbc
+    networks:
+    - data-pipeline
+    ports:
+    - "28082:28082"
+    volumes:
+    - ./conf/kafka-connect-jdbc-source/connect-standalone.properties:/kafka/config/connect-standalone.properties
+    - ./conf/kafka-connect-jdbc-source/kafka-connect-jdbc.properties:/kafka/config/kafka-connect-jdbc.properties
+    command: ["bin/connect-standalone.sh config/connect-standalone.properties", "config/kafka-connect-jdbc.properties"]
+  kafka-connect-sink:
+    build:
+      context: kafka-connect-jdbc
+    networks:
+    - data-pipeline
+    ports:
+    - "28083:28082"
+    volumes:
+    - ./conf/kafka-connect-jdbc-sink/connect-standalone.properties:/kafka/config/connect-standalone.properties
+    - ./conf/kafka-connect-jdbc-sink/kafka-connect-jdbc.properties:/kafka/config/kafka-connect-jdbc.properties
+    command: ["bin/connect-standalone.sh config/connect-standalone.properties", "config/kafka-connect-jdbc.properties"]
+networks:
+  data-pipeline:
